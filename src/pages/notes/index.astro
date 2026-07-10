@@ -1,0 +1,15 @@
+---
+import {getCollection} from "astro:content"
+import BaseLayout from "@/layouts/BaseLayout.astro"
+
+const posts = await getCollection("notes")
+---
+
+<BaseLayout description="Личный блог Александра Провотрова" title="Заметки">
+    <h2>Мои заметки</h2>
+    <ul>
+        {posts.map(post => (
+                <li><a href={`/notes/${post.id}`}>{post.data.title}</a></li>
+        ))}
+    </ul>
+</BaseLayout>
