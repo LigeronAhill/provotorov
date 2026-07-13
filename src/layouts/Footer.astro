@@ -1,32 +1,54 @@
 ---
-
+import {Image} from "astro:assets";
+import MAXLogo from "@/assets/icons/MAX.svg";
+import TelegramLogo from "@/assets/icons/telegramLogo.svg";
+import VKLogo from "@/assets/icons/VK Logo.svg";
+import safiraLogo from "@/assets/images/safira-logo.png"
 ---
+
 <footer>
     <nav>
-        <section>
-            <h5>Внешние ресурсы</h5>
-            <ul>
-                <li><a href="https://safira.club">Наш магазин</a></li>
-                <li><a href="https://safira.club">Канал в MAX</a></li>
-                <li><a href="https://safira.club">Канал в Telegram</a></li>
+        <!-- Внешние ресурсы -->
+        <section class="footer-section">
+            <h5>Ресурсы</h5>
+            <ul class="logos">
+                <li>
+                    <a href="https://safira.club" target="_blank" rel="noopener">
+                        <Image src={safiraLogo} alt={"Логотип Сафира"} width={"85"}/>
+                    </a>
+                </li>
+                <li>
+                    <a href="https://max.ru/id772878900927_biz" target="_blank" rel="noopener">
+                        <MAXLogo/>
+                    </a>
+                </li>
+                <li>
+                    <a href="https://t.me/safiraclub" target="_blank" rel="noopener">
+                        <TelegramLogo/>
+                    </a>
+                </li>
             </ul>
-
         </section>
-        <section>
+
+        <!-- Навигация по сайту -->
+        <section class="footer-section">
             <h5>Лабиринт увлечений</h5>
             <ul>
                 <li><a href="/">Главная</a></li>
                 <li><a href="/notes">Заметки</a></li>
                 <li><a href="/contacts">Контакты</a></li>
             </ul>
-
         </section>
-        <section>
-            <h5>Социальные сети</h5>
+
+        <!-- Социальные сети -->
+        <section class="footer-section social">
+            <h5>Соцсети</h5>
             <ul>
-                <li><a href="https://vk.com/alex_provotorov">Вконтакте</a></li>
-                <li><a href="https://vk.com/alex_provotorov">MAX</a></li>
-                <li><a href="https://vk.com/alex_provotorov">Telegram</a></li>
+                <li>
+                    <a href="https://vk.com/alex_provotorov" target="_blank" rel="noopener" aria-label="ВКонтакте">
+                        <VKLogo/>
+                    </a>
+                </li>
             </ul>
         </section>
     </nav>
@@ -38,61 +60,154 @@
         display: flex;
         align-items: center;
         justify-content: center;
-        background-color: var(--color-base-dark);
-        padding: 1rem;
+        background: var(--color-base-dark);
+        padding: 2rem 1rem;
+        border-top: 1px solid rgba(255, 255, 255, 0.06);
 
         nav {
             width: 100%;
             max-width: var(--max-width);
             display: grid;
             grid-template-columns: 1fr 1fr 1fr;
-            align-items: center;
-            justify-content: center;
-
-            section {
-                padding-inline: 2rem;
-                padding-bottom: 2rem;
-                width: 100%;
-                display: flex;
-                flex-direction: column;
-                align-items: center;
-                justify-content: center;
-
-                h5 {
-                    width: 100%;
-                    text-align: center;
-                }
-            }
-
-            section:nth-child(2) {
-                border-left: 1px solid var(--color-base-300);
-                border-right: 1px solid var(--color-base-300);
-            }
-
-
-            ul {
-                width: 100%;
-                margin: 0;
-                padding: 0;
-                list-style: none;
-                display: flex;
-                flex-direction: column;
-                gap: 1rem;
-                align-items: center;
-                justify-content: center;
-
-                li {
-                    width: 100%;
-                }
-            }
+            gap: 1.5rem;
         }
 
-        @media screen and (width < 640px) {
+        .footer-section {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .footer-section h5 {
+            font-family: var(--font-pt-serif), serif;
+            font-size: 1.1rem;
+            color: var(--color-base-content);
+            margin: 0 0 1.2rem 0;
+            text-transform: uppercase;
+            letter-spacing: 0.06em;
+            font-weight: 600;
+            opacity: 0.8;
+            border-bottom: 2px solid var(--color-base-300);
+            padding-bottom: 0.4rem;
+            display: inline-block;
+        }
+
+        .footer-section ul {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+            width: 100%;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 0.8rem;
+        }
+
+        .footer-section li {
+            width: 100%;
+            text-align: center;
+        }
+
+        .footer-section a {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            color: var(--color-base-content-muted);
+            text-decoration: none;
+            font-size: 0.95rem;
+            transition: color 0.2s, transform 0.2s;
+            padding: 0.2rem 0.5rem;
+            border-radius: 6px;
+        }
+
+        .footer-section a:hover {
+            color: var(--color-base-400);
+            transform: translateX(2px);
+        }
+
+        /* Иконки */
+
+        .footer-section .icon {
+            width: 1.2rem;
+            height: 1.2rem;
+            flex-shrink: 0;
+            transition: transform 0.2s;
+        }
+
+        .footer-section a:hover .icon {
+            transform: scale(1.1);
+        }
+
+        /* Социальная секция – делаем иконки больше */
+
+        .social a {
+            gap: 0.3rem;
+        }
+
+        .social .icon {
+            width: 1.8rem;
+            height: 1.8rem;
+            fill: var(--color-base-content-muted);
+            transition: fill 0.2s, transform 0.2s;
+        }
+
+        .social a:hover .icon {
+            fill: var(--color-base-400);
+            transform: scale(1.15);
+        }
+
+        .social-label {
+            font-size: 0.85rem;
+            opacity: 0.8;
+        }
+
+        /* Центральная секция (навигация) без иконок, но можно добавить при желании */
+
+        .footer-section:nth-child(2) a {
+            font-weight: 500;
+        }
+
+        .footer-section .logos {
+            width: 100%;
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+        }
+
+        @media (max-width: 768px) {
             nav {
-                flex-direction: column;
-                justify-content: center;
+                grid-template-columns: 1fr;
+                gap: 2rem;
+            }
+
+            .footer-section {
+                align-items: center;
+            }
+
+            .footer-section ul {
+                align-items: center;
+            }
+
+            .footer-section:nth-child(2) {
+                border-left: none;
+                border-right: none;
+                padding: 0;
+            }
+        }
+        @media (max-width: 480px) {
+            footer {
+                padding: 1.5rem 0.8rem;
+            }
+
+            .footer-section a {
+                font-size: 0.9rem;
+            }
+
+            .social .icon {
+                width: 1.6rem;
+                height: 1.6rem;
             }
         }
     }
+
 
 </style>

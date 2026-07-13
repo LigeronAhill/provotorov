@@ -37,7 +37,7 @@ body {
             var(--color-base-200) 0%,
             var(--color-base-100) 50%,
             var(--color-base-dark) 100%
-    );
+    ) fixed;
 }
 
 b,

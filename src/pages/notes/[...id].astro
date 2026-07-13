@@ -1,6 +1,7 @@
 ---
 import {type CollectionEntry, getCollection, render} from "astro:content";
 import BaseLayout from "@/layouts/BaseLayout.astro";
+import {tagToSlug} from "@/lib/utils.ts";
 
 interface Props {
     post: CollectionEntry<"notes">
@@ -22,8 +23,135 @@ const {Content} = await render(post)
         title={post.data.title}
 >
     <h1>{post.data.title}</h1>
+    <ul>
+        {post.data.tags.map(tag => (
+                <li><a href={`/tags/${tagToSlug(tag)}`}>{`#${tag}`}</a></li>
+        ))}
+    </ul>
     <time datetime={post.data.date.toISOString()}>
         {post.data.date.toLocaleDateString("ru-RU")}
     </time>
-    <Content/>
+    <article class="prose">
+        <Content/>
+    </article>
+    <div class="back-link">
+        <a href="/notes">← Все заметки</a>
+    </div>
 </BaseLayout>
+<style is:global>
+
+    article.prose h2,
+    article.prose h3,
+    article.prose h4,
+    article.prose h5,
+    article.prose h6 {
+        text-align: center;
+    }
+
+    article.prose table {
+        width: 100%;
+        border-collapse: separate;
+        border-spacing: 0;
+        border-radius: 12px;
+        overflow: hidden;
+        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.4);
+        margin: 1.8rem 0;
+        font-size: 0.95rem;
+        background: rgba(255, 255, 255, 0.05);
+        backdrop-filter: blur(2px);
+        border: 1px solid rgba(255, 255, 255, 0.08);
+        color: var(--color-base-content);
+    }
+
+    article.prose thead {
+        background: linear-gradient(135deg, var(--color-base-dark), var(--color-base-100));
+        color: var(--color-base-content);
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+        border-bottom: 2px solid var(--color-base-300);
+    }
+
+    article.prose th {
+        padding: 14px 18px;
+        text-align: left;
+        font-size: 0.85rem;
+        color: var(--color-base-content);
+    }
+
+    article.prose td {
+        padding: 12px 18px;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+        vertical-align: top;
+        color: var(--color-base-content-muted);
+    }
+
+    article.prose tbody tr:nth-child(even) {
+        background-color: rgba(255, 255, 255, 0.04);
+    }
+
+    article.prose tbody tr:nth-child(odd) {
+        background-color: rgba(255, 255, 255, 0.01);
+    }
+
+    article.prose tbody tr:hover {
+        background-color: rgba(255, 255, 255, 0.10);
+        transition: background 0.2s ease;
+    }
+
+    article.prose td:first-child {
+        font-weight: 500;
+        color: var(--color-base-content);
+    }
+
+    @media (max-width: 640px) {
+        article.prose table {
+            display: block;
+            overflow-x: auto;
+            white-space: nowrap;
+            border-radius: 8px;
+        }
+    }
+
+    article.prose td code {
+        background: rgba(255, 255, 255, 0.08);
+        padding: 2px 6px;
+        border-radius: 4px;
+        font-size: 0.9em;
+        color: var(--color-base-400);
+    }
+
+    article.prose img {
+        display: block;
+        margin-left: auto;
+        margin-right: auto;
+        max-width: 100%;
+        height: auto;
+        border-radius: 8px;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+    }
+
+    .back-link {
+        display: flex;
+        justify-content: center;
+        margin-top: 2rem;
+    }
+
+    .back-link a {
+        display: inline-block;
+        padding: 0.6rem 1.5rem;
+        border: 1px solid rgba(255, 255, 255, 0.2);
+        border-radius: 8px;
+        color: var(--color-base-content);
+        text-decoration: none;
+        transition: all 0.2s;
+        backdrop-filter: blur(2px);
+        background: rgba(255, 255, 255, 0.05);
+    }
+
+    .back-link a:hover {
+        background: rgba(255, 255, 255, 0.15);
+        border-color: var(--color-base-300);
+        transform: scale(1.02);
+    }
+</style>

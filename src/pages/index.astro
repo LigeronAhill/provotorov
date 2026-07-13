@@ -1,8 +1,124 @@
 ---
+import {Image} from "astro:assets";
+import {getCollection} from "astro:content";
+import myImage from "@/assets/images/me.jpg";
 import BaseLayout from "@/layouts/BaseLayout.astro"
+
+const allNotes = await getCollection("notes");
+const latestNotes = allNotes
+    .sort((a, b) => b.data.date.valueOf() - a.data.date.valueOf())
+    .slice(0, 5);
 ---
 
 <BaseLayout description="Личный блог Александра Провотрова" title="Главная">
     <h2>Личные заметки Александра Провоторова</h2>
-    <p>Решил начать вести заметки</p>
+    <section class="profile">
+        <Image src={myImage} alt="Фото Александра Провоторова" loading={"eager"}/>
+        <div>
+            <h3>О себе</h3>
+            <p>1982 г.р.</p>
+            <p>Соучредитель магазина ковровых покрытия "Сафира".</p>
+            <p>Характер нордический.</p>
+            <p>Не женат.</p>
+        </div>
+    </section>
+    <section class="interests">
+        <h3>Тематика будет чрезвычайно узкой - личные увлечения, а именно:</h3>
+        <ul class="interests-grid">
+            <li>💼 Бизнес (ковролин, продажи)</li>
+            <li>💻 Код: Rust, Go, Zig, Python, JS, SQL</li>
+            <li>🎸 Музыка и гитара</li>
+            <li>📚 Книги (детективы, фантастика, философия, наука)</li>
+            <li>🎮 Компьютерные игры</li>
+            <li>♟ Шахматы</li>
+            <li>🏋️ Силовые тренировки</li>
+            <li>📺 Фильмы, сериалы, аниме</li>
+        </ul>
+
+    </section>
+    <section class="latest-notes">
+        <h3>Последние заметки</h3>
+        <ul>
+            {latestNotes.map((note) => (
+                    <li>
+                        <a href={`/notes/${note.id}`}>
+                            <span>{note.data.title}</span>
+                            <time datetime={note.data.date.toISOString()}>
+                                {note.data.date.toLocaleDateString("ru-RU")}
+                            </time>
+                        </a>
+                    </li>
+            ))}
+        </ul>
+        <p><a href="/notes">Все заметки →</a></p>
+    </section>
 </BaseLayout>
+<style>
+    .profile {
+        width: 100%;
+        display: grid;
+        grid-template-columns: 1fr 2fr;
+        gap: 2rem;
+
+        img {
+            width: 100%;
+            height: auto;
+        }
+    }
+
+    .latest-notes {
+        margin-top: 2.5rem;
+    }
+
+    .latest-notes ul {
+        list-style: none;
+        padding: 0;
+    }
+
+    .latest-notes li {
+        padding: 0.5rem 0;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+    }
+
+    .latest-notes a {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        text-decoration: none;
+        color: var(--color-base-content);
+        transition: color 0.2s;
+    }
+
+    .latest-notes a:hover {
+        color: var(--color-base-400);
+    }
+
+    .latest-notes time {
+        font-size: 0.85rem;
+        opacity: 0.6;
+    }
+
+    .interests {
+        margin-top: 2.5rem;
+    }
+
+    .interests-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+        gap: 1rem;
+        list-style: none;
+        padding: 0;
+    }
+
+    .interests-grid li {
+        background: rgba(255, 255, 255, 0.05);
+        padding: 0.75rem 1rem;
+        border-radius: 12px;
+        border: 1px solid rgba(255, 255, 255, 0.06);
+        backdrop-filter: blur(2px);
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        font-size: 0.95rem;
+    }
+</style>

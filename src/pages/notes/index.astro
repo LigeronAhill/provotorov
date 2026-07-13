@@ -1,15 +1,143 @@
 ---
-import {getCollection} from "astro:content"
-import BaseLayout from "@/layouts/BaseLayout.astro"
+import {getCollection} from "astro:content";
+import BaseLayout from "@/layouts/BaseLayout.astro";
+import {tagToSlug} from "@/lib/utils.ts";
 
-const posts = await getCollection("notes")
+const posts = await getCollection("notes");
+posts.sort((a, b) => b.data.date.valueOf() - a.data.date.valueOf());
 ---
 
-<BaseLayout description="Личный блог Александра Провотрова" title="Заметки">
+<BaseLayout description="Личный блог Александра Провоторова" title="Заметки">
     <h2>Мои заметки</h2>
-    <ul>
+    <ul class="notes-grid">
         {posts.map(post => (
-                <li><a href={`/notes/${post.id}`}>{post.data.title}</a></li>
+                <li class="note-card">
+                    <a href={`/notes/${post.id}`} class="note-title-link">
+                        <h3 class="note-title">{post.data.title}</h3>
+                        <time class="note-date" datetime={post.data.date.toISOString()}>
+                            {post.data.date.toLocaleDateString("ru-RU")}
+                        </time>
+                        {post.data.description && (
+                                <p class="note-description">{post.data.description}</p>
+                        )}
+                    </a>
+                    <ul class="note-tags">
+                        {post.data.tags.map(tag => (
+                                <li>
+                                    <a href={`/tags/${tagToSlug(tag)}`}>{`#${tag}`}</a>
+                                </li>
+                        ))}
+                    </ul>
+                </li>
         ))}
     </ul>
 </BaseLayout>
+
+<style is:global>
+    .notes-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+        gap: 1.8rem;
+        list-style: none;
+        padding: 0;
+        margin: 2rem 0;
+    }
+
+    .note-card {
+        background: rgba(255, 255, 255, 0.04);
+        backdrop-filter: blur(4px);
+        border: 1px solid rgba(255, 255, 255, 0.08);
+        border-radius: 16px;
+        padding: 1.5rem;
+        transition: all 0.25s ease;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+        display: flex;
+        flex-direction: column;
+        height: 100%;
+    }
+
+    .note-card:hover {
+        transform: translateY(-4px);
+        background: rgba(255, 255, 255, 0.08);
+        border-color: var(--color-base-300);
+        box-shadow: 0 8px 24px rgba(0, 0, 0, 0.3);
+    }
+
+    .note-title-link {
+        text-decoration: none;
+        color: inherit;
+        display: block;
+    }
+
+    .note-title {
+        margin: 0 0 0.4rem 0;
+        font-size: 1.3rem;
+        font-weight: 600;
+        color: var(--color-base-content);
+        transition: color 0.2s;
+    }
+
+    .note-card:hover .note-title {
+        color: var(--color-base-400);
+    }
+
+    .note-date {
+        font-size: 0.8rem;
+        color: var(--color-base-content-muted);
+        opacity: 0.7;
+        margin-bottom: 0.6rem;
+        display: block;
+    }
+
+    .note-description {
+        font-size: 0.95rem;
+        color: var(--color-base-content-muted);
+        line-height: 1.4;
+        margin: 0 0 0.8rem 0;
+        flex-grow: 1;
+    }
+
+    .note-tags {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.5rem;
+        list-style: none;
+        margin: 1rem 0 0 0;
+        border-top: 1px solid rgba(255, 255, 255, 0.06);
+        padding: 0.8rem 0 0;
+    }
+
+    .note-tags li {
+        margin: 0;
+    }
+
+    .note-tags a {
+        display: inline-block;
+        background: rgba(255, 255, 255, 0.08);
+        padding: 0.3rem 0.8rem;
+        border-radius: 20px;
+        font-size: 0.75rem;
+        color: var(--color-base-400);
+        text-decoration: none;
+        border: 1px solid rgba(255, 255, 255, 0.06);
+        transition: all 0.2s ease;
+        white-space: nowrap;
+    }
+
+    .note-tags a:hover {
+        background: var(--color-base-300);
+        color: var(--color-base-dark);
+        border-color: var(--color-base-300);
+    }
+
+    @media (max-width: 640px) {
+        .notes-grid {
+            grid-template-columns: 1fr;
+            gap: 1.2rem;
+        }
+
+        .note-card {
+            padding: 1.2rem;
+        }
+    }
+</style>
