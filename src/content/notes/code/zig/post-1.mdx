@@ -1,0 +1,106 @@
+---
+title: "Queue в Zig"
+description: "Любопытный пример кода из официальной документации Zig"
+date: 2026-07-20
+tags: [ "code", "zig" ]
+---
+
+## {frontmatter.title}
+
+Нашел любопытный пример кода в официальной документации к Zig:
+
+```zig
+const std = @import("std");
+
+pub fn Queue(comptime T: type) type {
+    return struct {
+        const Self = @This();
+        const Node = struct {
+            data: T,
+            next: ?*Node,
+        };
+        gpa: std.mem.Allocator,
+        start: ?*Node,
+        end: ?*Node,
+
+        pub fn init(gpa: std.mem.Allocator) Self {
+            return .{
+                .gpa = gpa,
+                .start = null,
+                .end = null,
+            };
+        }
+
+        pub fn enqueue(self: *Self, value: T) !void {
+            const node = try self.gpa.create(Node);
+            node.* = .{
+                .data = value,
+                .next = null,
+            };
+            if (self.end) |end| {
+                end.next = node;
+            } else {
+                self.start = node;
+            }
+            self.end = node;
+        }
+
+        pub fn dequeue(self: *Self) ?T {
+            const start = self.start orelse return null;
+            defer self.gpa.destroy(start);
+            if (start.next) |next| {
+                self.start = next;
+            } else {
+                self.start = null;
+                self.end = null;
+            }
+            return start.data;
+        }
+
+        pub fn deinit(self: *Self) void {
+            var cur = self.start;
+            while (cur) |node| {
+                const next = node.next;
+                self.gpa.destroy(node);
+                cur = next;
+            }
+            self.start = null;
+            self.end = null;
+        }
+    };
+}
+
+test "queue" {
+    var int_queue = Queue(i32).init(std.testing.allocator);
+    defer int_queue.deinit();
+
+    try int_queue.enqueue(25);
+    try int_queue.enqueue(50);
+    try int_queue.enqueue(75);
+    try int_queue.enqueue(100);
+
+    try std.testing.expectEqual(int_queue.dequeue(), 25);
+    try std.testing.expectEqual(int_queue.dequeue(), 50);
+    try std.testing.expectEqual(int_queue.dequeue(), 75);
+    try std.testing.expectEqual(int_queue.dequeue(), 100);
+    try std.testing.expectEqual(int_queue.dequeue(), null);
+
+    try int_queue.enqueue(5);
+    try std.testing.expectEqual(int_queue.dequeue(), 5);
+    try std.testing.expectEqual(int_queue.dequeue(), null);
+}
+```
+
+Интересным показалось то, что сама очередь не хранится в структуре, в структуре только указатели на первый и последний элемент.
+Сам узлы динамически выделяются в куче (`heap`) с помощью переданного аллокатора (`gpa`).
+
+Вот как это работает:
+
+1. **Создание узла** — в функции `enqueue` вызывается `self.gpa.create(Node)`. Это выделяет память под структуру `Node` (которая содержит поле `data` и указатель `next`) и возвращает указатель на неё.
+Затем этот указатель сохраняется либо как новый `end` (если очередь не пуста, то он привязывается к предыдущему концу через `end.next = node`), либо как `start` (если это первый элемент).
+
+2. **Хранение** — все созданные узлы существуют независимо от полей `start` и `end`. Они располагаются в памяти, управляемой аллокатором. Поля `start` и `end` лишь "смотрят" на текущие первый и последний узлы, чтобы обеспечить доступ к началу и концу очереди за `O(1)`.
+
+3. **Удаление** — при `dequeue` указатель на первый узел извлекается из `start`, затем вызывается `self.gpa.destroy(start)`, которая освобождает память этого узла. После этого `start` перенаправляется на следующий узел (если он есть), иначе оба указателя становятся `null`.
+
+От себя добавил метод `deinit()`, который освобождает память в случае, если в конце области видимости очередь окажется не пустой. Это предотвратит утечки памяти.
